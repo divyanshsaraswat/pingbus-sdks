@@ -1,5 +1,5 @@
 import os
-from .services import WhatsAppService, EmailService, BalanceService
+from .services import WhatsAppService, EmailService, BalanceService, PushService, SmsService, AccountService, ProxyService
 from .utils import verify_signature
 
 class PingBusClient:
@@ -15,7 +15,11 @@ class PingBusClient:
 
         self.whatsapp = WhatsAppService(self.config)
         self.email = EmailService(self.config)
+        self.push = PushService(self.config)
+        self.sms = SmsService(self.config)
+        self.account = AccountService(self.config)
         self.balance = BalanceService(self.config)
+        self.proxies = ProxyService(self.config)
 
     @staticmethod
     def verify_signature(body: str, signature: str, api_key: str) -> bool:

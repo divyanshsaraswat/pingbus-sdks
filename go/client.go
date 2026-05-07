@@ -76,12 +76,38 @@ func (s *WhatsAppService) SendMessage(instanceId, chatId, message string) error 
 	return err
 }
 
+func (s *WhatsAppService) SendFileByUrl(instanceId, chatId, urlFile, fileName, caption string) error {
+	path := fmt.Sprintf("/waInstance%s/sendFileByUrl/%s", instanceId, s.client.config.APIKey)
+	_, err := s.client.request("POST", path, map[string]string{
+		"chatId":   chatId,
+		"urlFile":  urlFile,
+		"fileName": fileName,
+		"caption":  caption,
+	}, true)
+	return err
+}
+
+func (s *WhatsAppService) ReceiveNotification(instanceId string) ([]byte, error) {
+	path := fmt.Sprintf("/waInstance%s/receiveNotification/%s", instanceId, s.client.config.APIKey)
+	return s.client.request("GET", path, nil, true)
+}
+
+func (s *WhatsAppService) GetStatus(instanceId string) ([]byte, error) {
+	path := fmt.Sprintf("/waInstance%s/getStateInstance/%s", instanceId, s.client.config.APIKey)
+	return s.client.request("GET", path, nil, true)
+}
+
 type EmailService struct{ client *Client }
 func (s *EmailService) Send(to, subject, body string, options *EmailOptions) error {
 	payload := map[string]interface{}{"to": to, "subject": subject, "body": body}
 	if options != nil { payload["isHtml"] = options.IsHTML; payload["from"] = options.From }
 	_, err := s.client.request("POST", "/api/channels/email/send", payload, false)
 	return err
+}
+
+func (s *EmailService) ListLogs(limit, offset int) ([]byte, error) {
+	path := fmt.Sprintf("/api/channels/email/logs?limit=%d&offset=%d", limit, offset)
+	return s.client.request("GET", path, nil, false)
 }
 
 type PushService struct{ client *Client }
@@ -93,7 +119,8 @@ func (s *PushService) Send(target PushTarget, notification map[string]interface{
 
 type SmsService struct{ client *Client }
 func (s *SmsService) Send(to, body, instanceId string) error {
-	payload := map[string]string{"to": to, "body": body, "instanceId": instanceId}
+	payload := map[string]string{"to": to, "body": body}
+	if instanceId != "" { payload["instanceId"] = instanceId }
 	_, err := s.client.request("POST", "/api/channels/sms/send", payload, false)
 	return err
 }
@@ -105,6 +132,10 @@ func (s *ProxyService) Provision() error {
 }
 
 type AccountService struct{ client *Client }
+func (s *AccountService) GetProfile() ([]byte, error) {
+	return s.client.request("GET", "/api/account", nil, false)
+}
+
 type BalanceService struct{ client *Client }
 func (s *BalanceService) GetBalance() (map[string]interface{}, error) {
 	data, err := s.client.request("GET", "/api/balance", nil, false)

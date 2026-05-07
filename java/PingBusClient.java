@@ -66,6 +66,25 @@ public class PingBusClient {
                 if (!resp.isSuccessful()) throw new IOException("HTTP " + resp.code());
             }
         }
+
+        public void sendFileByUrl(String instanceId, String chatId, String urlFile, String fileName, String caption) throws IOException {
+            String url = String.format("%s/waInstance%s/sendFileByUrl/%s", parent.baseUrl, instanceId, parent.apiKey);
+            Map<String, String> payload = Map.of("chatId", chatId, "urlFile", urlFile, "fileName", fileName != null ? fileName : "", "caption", caption != null ? caption : "");
+            RequestBody body = RequestBody.create(gson.toJson(payload), MediaType.get("application/json"));
+            Request request = new Request.Builder().url(url).post(body).build();
+            try (Response resp = parent.executeRequest(request)) {
+                if (!resp.isSuccessful()) throw new IOException("HTTP " + resp.code());
+            }
+        }
+
+        public String receiveNotification(String instanceId) throws IOException {
+            String url = String.format("%s/waInstance%s/receiveNotification/%s", parent.baseUrl, instanceId, parent.apiKey);
+            Request request = new Request.Builder().url(url).get().build();
+            try (Response resp = parent.executeRequest(request)) {
+                if (!resp.isSuccessful()) throw new IOException("HTTP " + resp.code());
+                return resp.body().string();
+            }
+        }
     }
 
     public class EmailService {
@@ -73,11 +92,31 @@ public class PingBusClient {
         EmailService(PingBusClient parent) { this.parent = parent; }
         public void send(String to, String subject, String body, EmailOptions options) throws IOException {
             String url = parent.baseUrl + "/api/channels/email/send";
-            Map<String, Object> payload = Map.of("to", to, "subject", subject, "body", body);
+            Map<String, Object> payload = new java.util.HashMap<>(Map.of("to", to, "subject", subject, "body", body));
+            if (options != null) {
+                payload.put("isHtml", options.isHtml);
+                payload.put("from", options.from);
+            }
             RequestBody rb = RequestBody.create(gson.toJson(payload), MediaType.get("application/json"));
-            Request request = new Request.Builder().url(url).post(rb).build();
+            Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + parent.apiKey)
+                .post(rb)
+                .build();
             try (Response resp = parent.executeRequest(request)) {
                 if (!resp.isSuccessful()) throw new IOException("HTTP " + resp.code());
+            }
+        }
+
+        public String listLogs(int limit, int offset) throws IOException {
+            String url = String.format("%s/api/channels/email/logs?limit=%d&offset=%d", parent.baseUrl, limit, offset);
+            Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + parent.apiKey)
+                .get()
+                .build();
+            try (Response resp = parent.executeRequest(request)) {
+                return resp.body().string();
             }
         }
     }
@@ -89,7 +128,11 @@ public class PingBusClient {
             String url = parent.baseUrl + "/api/channels/push/send";
             Map<String, Object> payload = Map.of("target", target, "notification", notification);
             RequestBody rb = RequestBody.create(gson.toJson(payload), MediaType.get("application/json"));
-            Request request = new Request.Builder().url(url).post(rb).build();
+            Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + parent.apiKey)
+                .post(rb)
+                .build();
             try (Response resp = parent.executeRequest(request)) {
                 if (!resp.isSuccessful()) throw new IOException("HTTP " + resp.code());
             }
@@ -101,9 +144,14 @@ public class PingBusClient {
         SmsService(PingBusClient parent) { this.parent = parent; }
         public void send(String to, String body, String instanceId) throws IOException {
             String url = parent.baseUrl + "/api/channels/sms/send";
-            Map<String, String> payload = Map.of("to", to, "body", body, "instanceId", instanceId);
+            Map<String, String> payload = new java.util.HashMap<>(Map.of("to", to, "body", body));
+            if (instanceId != null) payload.put("instanceId", instanceId);
             RequestBody rb = RequestBody.create(gson.toJson(payload), MediaType.get("application/json"));
-            Request request = new Request.Builder().url(url).post(rb).build();
+            Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + parent.apiKey)
+                .post(rb)
+                .build();
             try (Response resp = parent.executeRequest(request)) {
                 if (!resp.isSuccessful()) throw new IOException("HTTP " + resp.code());
             }
@@ -114,7 +162,11 @@ public class PingBusClient {
         private final PingBusClient parent;
         AccountService(PingBusClient parent) { this.parent = parent; }
         public String getProfile() throws IOException {
-            Request request = new Request.Builder().url(parent.baseUrl + "/api/account").get().build();
+            Request request = new Request.Builder()
+                .url(parent.baseUrl + "/api/account")
+                .addHeader("Authorization", "Bearer " + parent.apiKey)
+                .get()
+                .build();
             try (Response resp = parent.executeRequest(request)) { return resp.body().string(); }
         }
     }
@@ -123,7 +175,11 @@ public class PingBusClient {
         private final PingBusClient parent;
         BalanceService(PingBusClient parent) { this.parent = parent; }
         public String getBalance() throws IOException {
-            Request request = new Request.Builder().url(parent.baseUrl + "/api/balance").get().build();
+            Request request = new Request.Builder()
+                .url(parent.baseUrl + "/api/balance")
+                .addHeader("Authorization", "Bearer " + parent.apiKey)
+                .get()
+                .build();
             try (Response resp = parent.executeRequest(request)) { return resp.body().string(); }
         }
     }
@@ -132,7 +188,11 @@ public class PingBusClient {
         private final PingBusClient parent;
         ProxyService(PingBusClient parent) { this.parent = parent; }
         public void provision() throws IOException {
-            Request request = new Request.Builder().url(parent.baseUrl + "/api/proxies").post(RequestBody.create("", null)).build();
+            Request request = new Request.Builder()
+                .url(parent.baseUrl + "/api/proxies")
+                .addHeader("Authorization", "Bearer " + parent.apiKey)
+                .post(RequestBody.create("", null))
+                .build();
             try (Response resp = parent.executeRequest(request)) { if (!resp.isSuccessful()) throw new IOException("HTTP " + resp.code()); }
         }
     }

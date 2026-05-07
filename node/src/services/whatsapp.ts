@@ -59,20 +59,44 @@ export class WhatsAppService extends BaseService {
     return this.request('PATCH', `/api/instances/${instanceId}/webhook`, { webhookUrl: url }, options);
   }
 
-  // Stubs (as per Section 3.2)
-  async sendPoll(instanceId: string, chatId: string, pollName: string, options: string[]): Promise<any> {
-    throw new Error('Method sendPoll not implemented');
+  // Advanced WhatsApp Methods
+  async sendPoll(instanceId: string, chatId: string, pollName: string, options: string[], requestOptions?: RequestOptions): Promise<any> {
+    return this.request('POST', `/waInstance${instanceId}/sendPoll/${this.config.apiKey}`, { chatId, pollName, options }, requestOptions, true);
   }
-  async sendLocation(instanceId: string, chatId: string, lat: number, lng: number, title?: string): Promise<any> {
-    throw new Error('Method sendLocation not implemented');
+
+  async sendLocation(instanceId: string, chatId: string, lat: number, lng: number, title?: string, requestOptions?: RequestOptions): Promise<any> {
+    return this.request('POST', `/waInstance${instanceId}/sendLocation/${this.config.apiKey}`, { chatId, latitude: lat, longitude: lng, name: title }, requestOptions, true);
   }
-  async sendContact(instanceId: string, chatId: string, contactNumber: string, contactName: string): Promise<any> {
-    throw new Error('Method sendContact not implemented');
+
+  async sendContact(instanceId: string, chatId: string, contactNumber: string, contactName: string, requestOptions?: RequestOptions): Promise<any> {
+    return this.request('POST', `/waInstance${instanceId}/sendContact/${this.config.apiKey}`, { chatId, phoneNumber: contactNumber, contactName }, requestOptions, true);
   }
-  async createGroup(instanceId: string, groupName: string, participants: string[]): Promise<any> {
-    throw new Error('Method createGroup not implemented');
+
+  async createGroup(instanceId: string, groupName: string, participants: string[], requestOptions?: RequestOptions): Promise<any> {
+    return this.request('POST', `/waInstance${instanceId}/createGroup/${this.config.apiKey}`, { groupName, participants }, requestOptions, true);
   }
-  async checkWhatsapp(instanceId: string, phoneNumber: string): Promise<any> {
-    throw new Error('Method checkWhatsapp not implemented');
+
+  async checkWhatsapp(instanceId: string, phoneNumber: string, requestOptions?: RequestOptions): Promise<any> {
+    return this.request('POST', `/waInstance${instanceId}/checkWhatsapp/${this.config.apiKey}`, { phoneNumber }, requestOptions, true);
+  }
+
+  async getChatHistory(instanceId: string, chatId: string, limit?: number, requestOptions?: RequestOptions): Promise<any> {
+    return this.request('GET', `/waInstance${instanceId}/getChatHistory/${this.config.apiKey}`, { chatId, limit }, requestOptions, true);
+  }
+
+  async readChat(instanceId: string, chatId: string, requestOptions?: RequestOptions): Promise<any> {
+    return this.request('POST', `/waInstance${instanceId}/readChat/${this.config.apiKey}`, { chatId }, requestOptions, true);
+  }
+
+  async archiveChat(instanceId: string, chatId: string, archive: boolean, requestOptions?: RequestOptions): Promise<any> {
+    return this.request('POST', `/waInstance${instanceId}/archiveChat/${this.config.apiKey}`, { chatId, archive }, requestOptions, true);
+  }
+
+  async deleteMessage(instanceId: string, chatId: string, messageId: string, requestOptions?: RequestOptions): Promise<any> {
+    return this.request('POST', `/waInstance${instanceId}/deleteMessage/${this.config.apiKey}`, { chatId, messageId }, requestOptions, true);
+  }
+
+  async logout(instanceId: string, requestOptions?: RequestOptions): Promise<any> {
+    return this.request('GET', `/waInstance${instanceId}/logout/${this.config.apiKey}`, undefined, requestOptions, true);
   }
 }
