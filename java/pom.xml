@@ -4,9 +4,34 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.divyanshsaraswat</groupId>
+    <groupId>com.pingbus</groupId>
     <artifactId>pingbus-java</artifactId>
-    <version>1.0.0</version>
+    <version>1.6.0</version>
+    <name>PingBus Java SDK</name>
+    <description>Official Java SDK for PingBus Notification Gateway</description>
+    <url>https://github.com/divyanshsaraswat/pingbus-sdks</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>PingBus Team</name>
+            <email>support@pingbus.com</email>
+            <organization>PingBus</organization>
+            <organizationUrl>https://pingbus.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/divyanshsaraswat/pingbus-sdks.git</connection>
+        <developerConnection>scm:git:ssh://github.com:divyanshsaraswat/pingbus-sdks.git</developerConnection>
+        <url>http://github.com/divyanshsaraswat/pingbus-sdks/tree/main</url>
+    </scm>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -32,7 +57,33 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.11.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

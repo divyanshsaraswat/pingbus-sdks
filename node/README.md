@@ -1,53 +1,112 @@
 # PingBus Node.js SDK (`@pingbus/sdk`)
 
-A production-ready TypeScript SDK for the PingBus Notification Gateway. Features native `fetch` support and first-class **TanStack React Query** integration.
+A production-grade TypeScript SDK for the PingBus Notification Gateway. Features native `fetch` support, full type safety, and first-class integration for multi-channel messaging.
 
 ## 📦 Installation
 
 ```bash
-npm install @pingbus/sdk @tanstack/react-query
+npm install @pingbus/sdk
 ```
 
-## 🚀 Quick Start
+## 🔑 Configuration
 
-### Basic Usage (Node.js)
+The client supports automatic environment detection for ease of deployment.
+
+| Option | Env Variable | Default | Description |
+|---|---|---|---|
+| `apiKey` | `PINGBUS_API_KEY` | **Required** | Your `pk_...` API key. |
+| `baseUrl` | `PINGBUS_BASE_URL` | `https://api.pingbus.com` | Backend server URL. |
+| `timeout` | `PINGBUS_TIMEOUT` | `30000` | Global timeout in ms. |
+
 ```typescript
 import { PingBusClient } from '@pingbus/sdk';
 
 const client = new PingBusClient({
-  apiKey: process.env.PINGBUS_API_KEY,
-  timeout: 30000
+  apiKey: 'pk_your_key_here',
+  timeout: 45000 // Optional override
 });
-
-// Send a WhatsApp Message
-await client.whatsapp.sendMessage('instance_123', '1234567890@s.whatsapp.net', 'Hello World!');
 ```
 
-### React Integration (TanStack Query)
-The SDK provides a built-in Context Provider and custom hooks for frontend apps.
+---
 
-```tsx
-import { PingBusClient, PingBusProvider, useWhatsAppStatus } from '@pingbus/sdk';
+## 🛰️ WhatsApp Service (`client.whatsapp`)
 
-const client = new PingBusClient({ apiKey: 'pk_...' });
+### Messaging
+```typescript
+// Send a text message
+await client.whatsapp.sendMessage('instance_id', '1234567890@c.us', 'Hello from Node!');
 
-function App() {
-  return (
-    <PingBusProvider client={client}>
-      <Dashboard />
-    </PingBusProvider>
-  );
-}
-
-function Dashboard() {
-  const { data, isLoading } = useWhatsAppStatus('instance_123');
-  
-  if (isLoading) return <p>Loading...</p>;
-  return <div>Status: {data.status}</div>;
-}
+// Send a file from URL
+await client.whatsapp.sendFileByUrl('instance_id', '1234567890@c.us', 'https://example.com/inv.pdf', 'invoice.pdf', 'Your Invoice');
 ```
 
-## 🛡️ Reliability Features
-- **Auto-Retry**: Implements Exponential Backoff with Jitter for `429` and `5xx` errors.
-- **Webhook Security**: Use `PingBusClient.verifySignature(body, signature, key)` for HMAC validation.
-- **Environment Aware**: Automatically detects `PINGBUS_API_KEY` and `PINGBUS_BASE_URL`.
+### Advanced Features
+```typescript
+// Send a Poll
+await client.whatsapp.sendPoll('instance_id', '1234@g.us', 'Lunch?', ['Pizza', 'Sushi']);
+
+// Manage Groups
+await client.whatsapp.createGroup('instance_id', 'Project Alpha', ['user1@c.us', 'user2@c.us']);
+
+// Check existence
+const res = await client.whatsapp.checkWhatsapp('instance_id', '1234567890');
+```
+
+---
+
+## 📧 Email Service (`client.email`)
+
+```typescript
+// Send Email
+await client.email.send('user@example.com', 'Welcome', '<h1>Hi!</h1>', { isHtml: true });
+
+// Fetch Logs
+const logs = await client.email.listLogs(50, 0);
+```
+
+---
+
+## 📱 Push & SMS Services
+
+### Push Notifications (FCM)
+```typescript
+await client.push.send(
+  { type: 'user', userId: 'app_user_123' },
+  { title: 'Update', body: 'New feature available!' }
+);
+```
+
+### SMS (Twilio)
+```typescript
+await client.sms.send('+19876543210', 'Your verification code is 1234');
+```
+
+---
+
+## ☁️ Cloud & Management
+
+```typescript
+// Check Credits
+const balance = await client.balance.getBalance();
+
+// Provision Proxies for WhatsApp
+const proxy = await client.proxies.provision();
+await client.proxies.attach(proxy.id, 'instance_id');
+```
+
+---
+
+## 🛡️ Reliability & Security
+
+### Automatic Retries
+The SDK implements **Exponential Backoff with Jitter** as defined in the PingBus Master Spec (v1.6). It automatically handles rate limits (`429`) and server availability issues (`503`).
+
+### Webhook Verification
+Validate that incoming webhooks genuinely originated from PingBus:
+
+```typescript
+const isValid = PingBusClient.verifySignature(rawBody, signatureHeader, process.env.PINGBUS_API_KEY);
+```
+
+## 📄 License
+MIT © PingBus 2026
