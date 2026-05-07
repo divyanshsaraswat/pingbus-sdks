@@ -34,6 +34,33 @@ public class Main {
 }
 ```
 
+### Unified Orchestration
+Trigger notifications across multiple channels simultaneously or via a waterfall fallback system using a single, idempotent API call.
+```java
+import java.util.Map;
+
+Map<String, Object> payload = Map.of(
+    "idempotencyKey", "unique-uuid-v4",
+    "event", "order_shipped",
+    "targets", Map.of(
+        "whatsapp", Map.of("instanceId", "wa_123", "chatId", "1234567890@c.us"),
+        "sms", Map.of("to", "+19876543210")
+    ),
+    "content", Map.of(
+        "title", "Order Shipped!",
+        "body", "Hi {{name}}, your order #{{orderId}} is on the way."
+    ),
+    "variables", Map.of("name", "Alice", "orderId", "ORD-777"),
+    "strategy", "waterfall",
+    "config", Map.of("waterfallTimeoutMs", 300000)
+);
+
+String response = client.dispatch.trigger(payload);
+
+// Check dispatch status
+String status = client.dispatch.getStatus("unique-uuid-v4");
+```
+
 ---
 
 ## 🔑 Configuration Reference

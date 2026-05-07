@@ -83,3 +83,13 @@ export class ProxyService extends BaseService {
     return this.request('POST', `/api/proxies/${proxyId}/detach`, undefined, options);
   }
 }
+
+export class DispatchService extends BaseService {
+  async trigger(payload: any, options?: RequestOptions): Promise<PingBusResponse<any>> {
+    return this.request('POST', '/api/dispatch', payload, options);
+  }
+
+  async getStatus(dispatchId: string, options?: RequestOptions): Promise<PingBusResponse<any>> {
+    return this.request('GET', `/api/dispatch/${dispatchId}`, undefined, options);
+  }
+}

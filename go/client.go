@@ -20,6 +20,7 @@ type Client struct {
 	Account  *AccountService
 	Balance  *BalanceService
 	Proxies  *ProxyService
+	Dispatch *DispatchService
 }
 
 func NewClient(apiKey, baseURL string) (*Client, error) {
@@ -41,6 +42,7 @@ func NewClient(apiKey, baseURL string) (*Client, error) {
 	c.Account = &AccountService{client: c}
 	c.Balance = &BalanceService{client: c}
 	c.Proxies = &ProxyService{client: c}
+	c.Dispatch = &DispatchService{client: c}
 	return c, nil
 }
 
@@ -143,4 +145,13 @@ func (s *BalanceService) GetBalance() (map[string]interface{}, error) {
 	var res map[string]interface{}
 	json.Unmarshal(data, &res)
 	return res, nil
+}
+
+type DispatchService struct{ client *Client }
+func (s *DispatchService) Trigger(payload map[string]interface{}) ([]byte, error) {
+	return s.client.request("POST", "/api/dispatch", payload, false)
+}
+
+func (s *DispatchService) GetStatus(dispatchId string) ([]byte, error) {
+	return s.client.request("GET", "/api/dispatch/"+dispatchId, nil, false)
 }

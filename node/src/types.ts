@@ -82,3 +82,25 @@ export interface TwilioConfig {
   authToken: string;
   fromNumber: string;
 }
+
+export interface DispatchPayload {
+  idempotencyKey: string;
+  event: string;
+  targets: {
+    whatsapp?: { instanceId: string; chatId: string };
+    email?: { to: string; instanceId?: string };
+    sms?: { to: string; instanceId?: string };
+    push?: { type: string; userId?: string; token?: string; topic?: string };
+    webhook?: { targetUrl: string; method?: string; headers?: Record<string, string>; payload?: any };
+  };
+  content: {
+    title?: string;
+    body: string;
+  };
+  variables?: Record<string, string>;
+  strategy?: 'parallel' | 'waterfall';
+  config?: {
+    waterfallTimeoutMs?: number;
+    callbackUrl?: string;
+  };
+}

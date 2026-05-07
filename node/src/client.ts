@@ -2,7 +2,8 @@ import { PingBusConfig } from './types';
 import { WhatsAppService } from './services/whatsapp';
 import { 
   EmailService, PushService, SmsService, 
-  AccountService, BalanceService, ProxyService 
+  AccountService, BalanceService, ProxyService,
+  DispatchService
 } from './services';
 import { verifySignature } from './utils/crypto';
 
@@ -14,6 +15,7 @@ export class PingBusClient {
   public account: AccountService;
   public balance: BalanceService;
   public proxies: ProxyService;
+  public dispatch: DispatchService;
 
   constructor(config: PingBusConfig) {
     const finalConfig: PingBusConfig = {
@@ -33,6 +35,7 @@ export class PingBusClient {
     this.account = new AccountService(finalConfig);
     this.balance = new BalanceService(finalConfig);
     this.proxies = new ProxyService(finalConfig);
+    this.dispatch = new DispatchService(finalConfig);
   }
 
   static verifySignature = verifySignature;

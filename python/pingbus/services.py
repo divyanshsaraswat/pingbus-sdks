@@ -50,3 +50,9 @@ class AccountService(BaseService):
 class ProxyService(BaseService):
     async def provision(self): return await self._request("POST", "/api/proxies")
     async def attach(self, proxy_id, instance_id): return await self._request("POST", f"/api/proxies/{proxy_id}/attach", json={"instanceId": instance_id})
+
+class DispatchService(BaseService):
+    async def trigger(self, payload: dict):
+        return await self._request("POST", "/api/dispatch", json=payload)
+    async def get_status(self, dispatch_id: str):
+        return await self._request("GET", f"/api/dispatch/{dispatch_id}")

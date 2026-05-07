@@ -38,6 +38,31 @@ func main() {
 }
 ```
 
+### Unified Orchestration
+Trigger notifications across multiple channels simultaneously or via a waterfall fallback system using a single, idempotent API call.
+```go
+payload := map[string]interface{}{
+    "idempotencyKey": "unique-uuid-v4",
+    "event":          "order_shipped",
+    "targets": map[string]interface{}{
+        "whatsapp": map[string]string{"instanceId": "wa_123", "chatId": "1234567890@c.us"},
+        "sms":      map[string]string{"to": "+19876543210"},
+    },
+    "content": map[string]string{
+        "title": "Order Shipped!",
+        "body":  "Hi {{name}}, your order #{{orderId}} is on the way.",
+    },
+    "variables": map[string]string{"name": "Alice", "orderId": "ORD-777"},
+    "strategy":  "waterfall",
+    "config":    map[string]interface{}{"waterfallTimeoutMs": 300000},
+}
+
+response, err := client.Dispatch.Trigger(payload)
+
+// Check dispatch status
+status, err := client.Dispatch.GetStatus("unique-uuid-v4")
+```
+
 ---
 
 ## 🔑 Configuration Reference

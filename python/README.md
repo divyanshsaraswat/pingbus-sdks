@@ -48,6 +48,29 @@ await client.push.send(
 )
 ```
 
+### Unified Orchestration
+Trigger notifications across multiple channels simultaneously or via a waterfall fallback system using a single, idempotent API call.
+```python
+await client.dispatch.trigger({
+    "idempotencyKey": "unique-uuid-v4",
+    "event": "order_shipped",
+    "targets": {
+        "whatsapp": { "instanceId": "wa_123", "chatId": "1234567890@c.us" },
+        "sms": { "to": "+19876543210" }
+    },
+    "content": {
+        "title": "Order Shipped!",
+        "body": "Hi {{name}}, your order #{{orderId}} is on the way."
+    },
+    "variables": { "name": "Alice", "orderId": "ORD-777" },
+    "strategy": "waterfall",
+    "config": { "waterfallTimeoutMs": 300000 }
+})
+
+# Check dispatch status
+status = await client.dispatch.get_status("unique-uuid-v4")
+```
+
 ---
 
 ## 🔑 Configuration Reference

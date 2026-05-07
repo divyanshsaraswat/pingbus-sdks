@@ -29,6 +29,35 @@ const client = new PingBusClient({
 
 ---
 
+## 🚀 Unified Orchestration (`client.dispatch`)
+
+Trigger notifications across multiple channels simultaneously or via a waterfall fallback system using a single, idempotent API call.
+
+```typescript
+// Trigger a multi-channel dispatch
+const result = await client.dispatch.trigger({
+  idempotencyKey: 'unique-uuid-v4',
+  event: 'order_shipped',
+  targets: {
+    whatsapp: { instanceId: 'wa_123', chatId: '1234567890@c.us' },
+    email: { to: 'customer@example.com' },
+    sms: { to: '+19876543210' }
+  },
+  content: {
+    title: 'Order Shipped!',
+    body: 'Hi {{name}}, your order #{{orderId}} is on the way.'
+  },
+  variables: { name: 'Alice', orderId: 'ORD-777' },
+  strategy: 'waterfall', // or 'parallel'
+  config: { waterfallTimeoutMs: 300000 }
+});
+
+// Check dispatch status
+const status = await client.dispatch.getStatus('unique-uuid-v4');
+```
+
+---
+
 ## 🛰️ WhatsApp Service (`client.whatsapp`)
 
 ### Messaging

@@ -20,6 +20,7 @@ public class PingBusClient {
     public final AccountService account;
     public final BalanceService balance;
     public final ProxyService proxies;
+    public final DispatchService dispatch;
 
     public PingBusClient(String apiKey, String baseUrl) {
         this.apiKey = apiKey != null ? apiKey : System.getenv("PINGBUS_API_KEY");
@@ -37,6 +38,7 @@ public class PingBusClient {
         this.account = new AccountService(this);
         this.balance = new BalanceService(this);
         this.proxies = new ProxyService(this);
+        this.dispatch = new DispatchService(this);
     }
 
     protected Response executeRequest(Request request) throws IOException {
@@ -194,6 +196,36 @@ public class PingBusClient {
                 .post(RequestBody.create("", null))
                 .build();
             try (Response resp = parent.executeRequest(request)) { if (!resp.isSuccessful()) throw new IOException("HTTP " + resp.code()); }
+        }
+    }
+
+    public class DispatchService {
+        private final PingBusClient parent;
+        DispatchService(PingBusClient parent) { this.parent = parent; }
+        public String trigger(Map<String, Object> payload) throws IOException {
+            String url = parent.baseUrl + "/api/dispatch";
+            RequestBody rb = RequestBody.create(gson.toJson(payload), MediaType.get("application/json"));
+            Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + parent.apiKey)
+                .post(rb)
+                .build();
+            try (Response resp = parent.executeRequest(request)) { 
+                if (!resp.isSuccessful()) throw new IOException("HTTP " + resp.code());
+                return resp.body().string();
+            }
+        }
+        public String getStatus(String dispatchId) throws IOException {
+            String url = parent.baseUrl + "/api/dispatch/" + dispatchId;
+            Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + parent.apiKey)
+                .get()
+                .build();
+            try (Response resp = parent.executeRequest(request)) { 
+                if (!resp.isSuccessful()) throw new IOException("HTTP " + resp.code());
+                return resp.body().string();
+            }
         }
     }
 }
