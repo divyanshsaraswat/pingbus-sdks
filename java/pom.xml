@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.pingbus</groupId>
-    <artifactId>pingbus-java</artifactId>
-    <version>1.6.0</version>
+    <groupId>io.github.divyanshsaraswat</groupId>
+    <artifactId>pingbus</artifactId>
+    <version>0.5.0</version>
     <name>PingBus Java SDK</name>
     <description>Official Java SDK for PingBus Notification Gateway</description>
     <url>https://github.com/divyanshsaraswat/pingbus-sdks</url>
@@ -21,7 +21,7 @@
     <developers>
         <developer>
             <name>PingBus Team</name>
-            <email>support@pingbus.com</email>
+            <email>pingbusofficial@gmail.com</email>
             <organization>PingBus</organization>
             <organizationUrl>https://pingbus.com</organizationUrl>
         </developer>
@@ -60,14 +60,24 @@
                 <version>3.11.0</version>
             </plugin>
             <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.6.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
                         <goals>
-                            <goal>jar-no-fork</goal>
+                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -75,7 +85,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.6.3</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -85,6 +95,29 @@
                     </execution>
                 </executions>
             </plugin>
+           <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-gpg-plugin</artifactId>
+    <version>3.2.4</version>
+
+    <configuration>
+        <gpgExecutable>
+            C:\Program Files\GnuPG\bin\gpg.exe
+        </gpgExecutable>
+    </configuration>
+
+    <executions>
+        <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+
+            <goals>
+                <goal>sign</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
         </plugins>
     </build>
+
 </project>

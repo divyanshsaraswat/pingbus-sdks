@@ -1,4 +1,4 @@
-import { RequestOptions } from './types';
+import { RequestOptions } from '../types';
 
 export interface RetryConfig {
   initialDelay: number;

@@ -2,11 +2,11 @@ from setuptools import setup, find_packages
 
 setup(
     name="pingbus",
-    version="1.0.0",
+    version="0.5.0",
     author="PingBus Team",
-    author_email="support@pingbus.com",
+    author_email="pingbusofficial@gmail.com",
     description="Official Python SDK for PingBus Notification Gateway",
-    long_description=open("README.md").read(),
+    long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/divyanshsaraswat/pingbus-sdks",
     project_urls={

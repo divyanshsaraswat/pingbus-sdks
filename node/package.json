@@ -1,6 +1,6 @@
 {
   "name": "@pingbus/sdk",
-  "version": "1.0.0",
+  "version": "0.5.0",
   "description": "Official Multi-Language SDK for PingBus Notification Gateway",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
