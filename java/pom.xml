@@ -100,11 +100,6 @@
     <artifactId>maven-gpg-plugin</artifactId>
     <version>3.2.4</version>
 
-    <configuration>
-        <gpgExecutable>
-            C:\Program Files\GnuPG\bin\gpg.exe
-        </gpgExecutable>
-    </configuration>
 
     <executions>
         <execution>
