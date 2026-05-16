@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pingbus",
-    version="0.5.0",
+    version="0.8.0",
     author="PingBus Team",
     author_email="pingbusofficial@gmail.com",
     description="Official Python SDK for PingBus Notification Gateway",
@@ -19,6 +19,13 @@ setup(
         "httpx>=0.24.0",
         "pydantic>=2.0.0",
     ],
+    extras_require={
+        "test": [
+            "pytest>=7.0.0",
+            "pytest-asyncio>=0.21.0",
+            "respx>=0.20.0"
+        ],
+    },
     keywords=["pingbus", "notifications", "whatsapp", "email", "sms", "push", "fcm", "twilio", "webhook"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",

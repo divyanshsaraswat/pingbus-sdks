@@ -1,113 +1,166 @@
-# PingBus Python SDK (`pingbus-python`)
+# PingBus Python SDK (`pingbus`)
 
-An asynchronous, type-safe Python SDK for the PingBus Notification Gateway. Built on `httpx` and `pydantic` for high performance and robust data validation.
+A production-grade Python SDK for the PingBus Notification Gateway. Features native `httpx` async support, full type hints, and first-class integration for multi-channel messaging.
 
 ## 📦 Installation
 
 ```bash
-pip install httpx pydantic
+pip install pingbus
 ```
 
-## 🚀 Quick Start
+---
 
-### Basic Usage
+## 🔑 Configuration
+
+| Option | Env Variable | Default | Description |
+|---|---|---|---|
+| `api_key` | `PINGBUS_API_KEY` | **Required** | Your `pk_...` API key from Account settings. |
+| `base_url` | `PINGBUS_BASE_URL` | `https://www.pingbus.live` | Production API base URL. |
+| `timeout` | `PINGBUS_TIMEOUT` | `30.0` | Global request timeout in seconds. |
+
 ```python
-import asyncio
+import os
 from pingbus import PingBusClient
 
+client = PingBusClient(
+    api_key=os.getenv("PINGBUS_API_KEY"), # keep server-side only
+    base_url="https://www.pingbus.live"
+)
+```
+
+> **Security:** Your `pk_` API key is a full-access bearer token. Always keep it on the server — never expose it in frontend/client code.
+
+---
+
+## 🔐 Authentication
+
+All requests are authenticated with a standard `Authorization` header automatically set by the SDK:
+
+```http
+Authorization: Bearer pk_your_key_here
+Content-Type: application/json
+```
+
+No token in the URL is required or used.
+
+---
+
+## 🚀 Unified Orchestration (`client.dispatch`)
+
+Trigger notifications across multiple channels simultaneously or via a waterfall fallback using a single, idempotent API call.
+
+```python
+import asyncio
+
 async def main():
-    # Automatically picks up PINGBUS_API_KEY and PINGBUS_BASE_URL from env
-    client = PingBusClient()
+    result = await client.dispatch.trigger({
+        "idempotencyKey": "unique-uuid-v4",
+        "event": "order_shipped",
+        "targets": {
+            "whatsapp": { "instanceId": "waInstance4256253175", "chatId": "919876543210@c.us" },
+            "email":    { "to": "customer@example.com" },
+            "sms":      { "to": "+19876543210" }
+        },
+        "content": {
+            "title": "Order Shipped!",
+            "body":  "Hi {{name}}, your order #{{orderId}} is on the way."
+        },
+        "variables": { "name": "Alice", "orderId": "ORD-777" },
+        "strategy": "waterfall",
+        "config": { "waterfallTimeoutMs": 300000 }
+    })
 
-    # Send a WhatsApp Message
-    await client.whatsapp.send_message(
-        instance_id="inst_123",
-        chat_id="1234567890@c.us",
-        message="Hello from Python!"
-    )
-
-    # Send an Email
-    await client.email.send(
-        to="user@example.com",
-        subject="Welcome",
-        body="<h1>Welcome!</h1>",
-        options={"isHtml": True}
-    )
+    # Check dispatch status
+    status = await client.dispatch.get_status("unique-uuid-v4")
 
 asyncio.run(main())
 ```
 
-### Advanced Push Notifications
+---
+
+## 🛰️ WhatsApp Service (`client.whatsapp`)
+
+### Messaging
+
+```python
+async def whatsapp_examples():
+    # Send a text message
+    await client.whatsapp.send_message('4256253175', '919876543210@c.us', 'Hello from PingBus!')
+
+    # Send a file from URL
+    await client.whatsapp.send_file_by_url(
+        '4256253175',
+        '919876543210@c.us',
+        'https://example.com/invoice.pdf',
+        name='invoice.pdf',
+        caption='Your Invoice'
+    )
+
+    # Poll for incoming messages (returns None if queue is empty)
+    notification = await client.whatsapp.receive('4256253175')
+```
+
+*(Note: In the Python SDK, instance ID can be passed simply as the number string, e.g., `'4256253175'`, because `client.whatsapp` internally prepends `waInstance` to it.)*
+
+---
+
+## 📧 Email Service (`client.email`)
+
+```python
+async def email_examples():
+    # Send Email
+    await client.email.send('user@example.com', 'Welcome', '<h1>Hi!</h1>', options={'isHtml': True})
+
+    # Fetch Logs
+    logs = await client.email.list_logs(limit=50, offset=0)
+```
+
+---
+
+## 📱 Push & SMS Services
+
+### Push Notifications (FCM)
+
 ```python
 from pingbus.models import PushTarget
 
-# Send to a specific User ID
-await client.push.send(
-    target=PushTarget(type="user", userId="user_456"),
-    notification={"title": "Alert", "body": "Critical Update"}
-)
-```
-
-### Unified Orchestration
-Trigger notifications across multiple channels simultaneously or via a waterfall fallback system using a single, idempotent API call.
-```python
-await client.dispatch.trigger({
-    "idempotencyKey": "unique-uuid-v4",
-    "event": "order_shipped",
-    "targets": {
-        "whatsapp": { "instanceId": "wa_123", "chatId": "1234567890@c.us" },
-        "sms": { "to": "+19876543210" }
-    },
-    "content": {
-        "title": "Order Shipped!",
-        "body": "Hi {{name}}, your order #{{orderId}} is on the way."
-    },
-    "variables": { "name": "Alice", "orderId": "ORD-777" },
-    "strategy": "waterfall",
-    "config": { "waterfallTimeoutMs": 300000 }
-})
-
-# Check dispatch status
-status = await client.dispatch.get_status("unique-uuid-v4")
+async def push_example():
+    target = PushTarget(type="user", userId="app_user_123")
+    await client.push.send(
+        target=target,
+        notification={"title": "Update", "body": "New feature available!"}
+    )
 ```
 
 ---
 
-## 🔑 Configuration Reference
-
-The client supports automatic environment detection.
-
-| Option | Env Variable | Default |
-|---|---|---|
-| `api_key` | `PINGBUS_API_KEY` | **Required** |
-| `base_url` | `PINGBUS_BASE_URL` | `https://api.pingbus.com` |
-| `timeout` | `PINGBUS_TIMEOUT` | `30.0` |
+## ☁️ Account & Management
 
 ```python
-client = PingBusClient(api_key="pk_...", timeout=10.0)
+async def mgmt_examples():
+    # Get profile
+    profile = await client.account.get_profile()
+
+    # Provision Proxies for WhatsApp
+    proxy = await client.proxies.provision()
+    await client.proxies.attach(proxy['id'], 'waInstance4256253175')
 ```
 
 ---
 
-## ⚡ Key Features
+## 🛡️ Reliability
 
-*   **Async/Await Native:** Uses `httpx.AsyncClient` for non-blocking concurrent requests and connection pooling.
-*   **Pydantic Models:** All request and response data is validated using Pydantic, providing full IDE autocompletion and type safety.
-*   **Automatic Retries:** Implements the normative PingBus retry strategy (Exponential Backoff + Jitter) to handle rate limits (`429`) and server errors (`503`).
+### Automatic Retries
+The SDK implements **Exponential Backoff with Jitter**. It automatically handles rate limits (`429`) and server availability issues (`503`).
 
----
-
-## 🛡️ Webhook Security
-
-Verify that incoming HTTP requests genuinely originated from PingBus using HMAC-SHA256:
+### Webhook Verification
+Validate that incoming webhooks genuinely originated from PingBus:
 
 ```python
-is_valid = PingBusClient.verify_signature(
-    body=request.body, 
-    signature=request.headers["X-PingBus-Signature"], 
-    api_key="your_api_key"
-)
+is_valid = PingBusClient.verify_signature(raw_body, signature_header, os.getenv("PINGBUS_API_KEY"))
 ```
+
+---
 
 ## 📄 License
 MIT © PingBus 2026

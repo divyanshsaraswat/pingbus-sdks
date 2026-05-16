@@ -13,6 +13,9 @@ export class EmailService extends BaseService {
     const query = new URLSearchParams({ limit: String(limit || 50), offset: String(offset || 0) });
     return this.request('GET', `/api/channels/email/logs?${query}`, undefined, options);
   }
+  async getLog(id: string, options?: RequestOptions): Promise<PingBusResponse<EmailLog>> {
+    return this.request('GET', `/api/channels/email/logs/${id}`, undefined, options);
+  }
   async testConnection(config: SMTPConfig, options?: RequestOptions): Promise<any> {
     return this.request('POST', '/api/channels/email/instances/test-connection', config, options);
   }
@@ -84,12 +87,5 @@ export class ProxyService extends BaseService {
   }
 }
 
-export class DispatchService extends BaseService {
-  async trigger(payload: any, options?: RequestOptions): Promise<PingBusResponse<any>> {
-    return this.request('POST', '/api/dispatch', payload, options);
-  }
-
-  async getStatus(dispatchId: string, options?: RequestOptions): Promise<PingBusResponse<any>> {
-    return this.request('GET', `/api/dispatch/${dispatchId}`, undefined, options);
-  }
-}
+// Re-export DispatchService from its own file
+export { DispatchService } from './dispatch';

@@ -6,7 +6,7 @@ class PingBusClient:
     def __init__(self, api_key: str = None, base_url: str = None, timeout: float = 30.0):
         self.config = {
             "api_key": api_key or os.getenv("PINGBUS_API_KEY"),
-            "base_url": base_url or os.getenv("PINGBUS_BASE_URL", "https://api.pingbus.com"),
+            "base_url": base_url or os.getenv("PINGBUS_BASE_URL", "https://www.pingbus.live"),
             "timeout": timeout or float(os.getenv("PINGBUS_TIMEOUT", 30.0))
         }
         

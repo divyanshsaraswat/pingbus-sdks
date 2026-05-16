@@ -1,0 +1,40 @@
+{
+  "name": "pingbus-sdk-tests",
+  "version": "1.0.0",
+  "description": "Test suite for @pingbus/sdk Node.js SDK",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:unit": "jest --testPathPattern=unit",
+    "test:integration": "jest --testPathPattern=integration"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": ["**/*.test.ts"],
+    "collectCoverageFrom": ["../src/**/*.ts"],
+    "coverageDirectory": "coverage",
+    "globals": {
+      "ts-jest": {
+        "tsconfig": {
+          "module": "commonjs",
+          "moduleResolution": "node",
+          "esModuleInterop": true,
+          "skipLibCheck": true
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@pingbus/sdk": "file:../"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "typescript": "^5.0.0",
+    "@types/jest": "^29.0.0",
+    "@types/node": "^18.0.0"
+  }
+}

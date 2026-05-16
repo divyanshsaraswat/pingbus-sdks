@@ -6,11 +6,12 @@ class BaseService:
     def __init__(self, config):
         self.config = config
 
-    async def _request(self, method: str, path: str, json=None, params=None, use_path_token=False):
+    async def _request(self, method: str, path: str, json=None, params=None):
         url = f"{self.config['base_url']}{path}"
-        headers = {"Content-Type": "application/json"}
-        if not use_path_token:
-            headers["Authorization"] = f"Bearer {self.config['api_key']}"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.config['api_key']}"
+        }
 
         async with httpx.AsyncClient(timeout=self.config['timeout']) as client:
             async def do_req():
@@ -22,13 +23,13 @@ class BaseService:
 
 class WhatsAppService(BaseService):
     async def send_message(self, instance_id: str, chat_id: str, message: str):
-        return await self._request("POST", f"/waInstance{instance_id}/sendMessage/{self.config['api_key']}", json={"chatId": chat_id, "message": message}, use_path_token=True)
+        return await self._request("POST", f"/api/waInstance{instance_id}/sendMessage", json={"chatId": chat_id, "message": message})
     
     async def send_file_by_url(self, instance_id, chat_id, url, name=None, caption=None):
-        return await self._request("POST", f"/waInstance{instance_id}/sendFileByUrl/{self.config['api_key']}", json={"chatId": chat_id, "urlFile": url, "fileName": name, "caption": caption}, use_path_token=True)
+        return await self._request("POST", f"/api/waInstance{instance_id}/sendFileByUrl", json={"chatId": chat_id, "urlFile": url, "fileName": name, "caption": caption})
 
     async def receive(self, instance_id):
-        return await self._request("GET", f"/waInstance{instance_id}/receiveNotification/{self.config['api_key']}", use_path_token=True)
+        return await self._request("GET", f"/api/waInstance{instance_id}/receiveNotification")
 
 class EmailService(BaseService):
     async def send(self, to, subject, body, options=None):
@@ -56,3 +57,11 @@ class DispatchService(BaseService):
         return await self._request("POST", "/api/dispatch", json=payload)
     async def get_status(self, dispatch_id: str):
         return await self._request("GET", f"/api/dispatch/{dispatch_id}")
+
+class SmsService(BaseService):
+    async def send(self, to: str, body: str):
+        return await self._request("POST", "/api/channels/sms/send", json={"to": to, "body": body})
+
+class BalanceService(BaseService):
+    async def get_balance(self):
+        return await self._request("GET", "/api/account/balance")
