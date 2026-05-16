@@ -38,7 +38,7 @@ jobs:
         run: npm ci
 
       - name: Bump version to match tag
-        run: npm version ${{ steps.version.outputs.VERSION }} --no-git-tag-version
+        run: npm version ${{ steps.version.outputs.VERSION }} --no-git-tag-version --allow-same-version
 
       - name: Build
         run: npm run build
